@@ -1,7 +1,7 @@
 [package]
 name = "hostname"
-version = "0.1.0"
-description = "Get hostname. Compatiable with windows and linux."
+version = "0.1.1"
+description = "Get hostname. Compatible with windows and linux."
 keywords = ["hostname", "objectid"]
 authors = ["fengcen <fengcen.love@gmail.com>"]
 repository = "https://github.com/fengcen/hostname.git"

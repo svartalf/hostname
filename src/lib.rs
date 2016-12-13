@@ -1,4 +1,4 @@
-//! Get hostname. Compatiable with windows and linux.
+//! Get hostname. Compatible with windows and linux.
 //!
 //! # Examples
 //! ```
