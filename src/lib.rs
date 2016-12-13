@@ -25,7 +25,7 @@ pub fn get_hostname() -> Option<String> {
 
 #[cfg(unix)]
 extern "C" {
-    pub fn gethostname(name: *mut libc::c_char, size: libc::size_t) -> libc::c_int;
+    fn gethostname(name: *mut libc::c_char, size: libc::size_t) -> libc::c_int;
 }
 
 #[cfg(unix)]
