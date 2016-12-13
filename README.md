@@ -25,7 +25,7 @@ extern crate hostname;
 ```
 use hostname::get_hostname;
 
-assert!(!get_hostname().is_ok());
+assert!(get_hostname().is_some());
 ```
 
 ## License
