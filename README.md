@@ -1,7 +1,7 @@
 
 hostname
 ===
-[![docs](https://docs.rs/hostname/badge.svg?version=0.1.0 "docs")](https://docs.rs/hostname)
+[![docs](https://docs.rs/hostname/badge.svg?version=0.1.1 "docs")](https://docs.rs/hostname)
 
 Get hostname. Compatible with windows and unix.
 
