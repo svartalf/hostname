@@ -9,30 +9,37 @@
 //!
 #![cfg_attr(all(feature = "unstable", test), feature(test))]
 
-#[cfg(windows)]
-extern crate winutil;
-
-#[cfg(unix)]
 extern crate libc;
-
-
-/// Get hostname.
 #[cfg(windows)]
-pub fn get_hostname() -> Option<String> {
-    winutil::get_computer_name()
-}
+extern crate winapi;
 
+use std::ffi::CStr;
+#[cfg(windows)]
+use std::mem;
 
 #[cfg(unix)]
 extern "C" {
     fn gethostname(name: *mut libc::c_char, size: libc::size_t) -> libc::c_int;
 }
 
-#[cfg(unix)]
-use std::ffi::CStr;
+#[cfg(windows)]
+unsafe fn gethostname(name: *mut libc::c_char, size: libc::size_t) -> libc::c_int {
+    let mut wsa_data = mem::uninitialized();
+
+    // 514 == 2.2, which is ~20 years old at this point, so should be safe ;)
+    let startup_res = winapi::um::winsock2::WSAStartup(514, &mut wsa_data);
+    if startup_res != 0 {
+        return startup_res;
+    }
+
+    let res = winapi::um::winsock2::gethostname(name, size as i32);
+
+    winapi::um::winsock2::WSACleanup();
+
+    res
+}
 
 /// Get hostname.
-#[cfg(unix)]
 pub fn get_hostname() -> Option<String> {
     let len = 255;
     let mut buf = Vec::<u8>::with_capacity(len);

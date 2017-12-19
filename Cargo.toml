@@ -17,8 +17,8 @@ path = "src/lib.rs"
 [features]
 unstable = []
 
-[target."cfg(unix)".dependencies]
+[dependencies]
 libc = "^0.2"
 
 [target."cfg(windows)".dependencies]
-winutil = "^0.1"
+winapi = { version = "~0.3", features = ["winsock2"] }
