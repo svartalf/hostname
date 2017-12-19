@@ -21,4 +21,4 @@ unstable = []
 libc = "^0.2"
 
 [target."cfg(windows)".dependencies]
-winutil = "^0.1"
+winutil = "^0.1.1"
