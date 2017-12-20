@@ -14,8 +14,6 @@ extern crate libc;
 extern crate winapi;
 
 use std::ffi::CStr;
-#[cfg(windows)]
-use std::mem;
 
 #[cfg(unix)]
 extern "C" {
@@ -24,19 +22,20 @@ extern "C" {
 
 #[cfg(windows)]
 unsafe fn gethostname(name: *mut libc::c_char, size: libc::size_t) -> libc::c_int {
-    let mut wsa_data = mem::uninitialized();
+    use winapi::um::sysinfoapi as nfo;
 
-    // 514 == 2.2, which is ~20 years old at this point, so should be safe ;)
-    let startup_res = winapi::um::winsock2::WSAStartup(514, &mut wsa_data);
-    if startup_res != 0 {
-        return startup_res;
+    let mut size = size as u32;
+
+    // 0 == failure for this function
+    if nfo::GetComputerNameExA(
+        nfo::ComputerNameDnsHostname,
+        name,
+        &mut size
+    ) != 0 {
+        0
+    } else {
+        1
     }
-
-    let res = winapi::um::winsock2::gethostname(name, size as i32);
-
-    winapi::um::winsock2::WSACleanup();
-
-    res
 }
 
 /// Get hostname.
@@ -65,8 +64,16 @@ mod benches {
     extern crate test;
     use super::get_hostname;
 
+
+    #[cfg(unix)]
     #[bench]
     fn bench_get_hostname(b: &mut test::Bencher) {
         b.iter(|| get_hostname().unwrap())
+    }
+
+    #[cfg(windows)]
+    #[bench]
+    fn bench_get_hostname(b: &mut test::Bencher) {
+        b.iter(|| get_hostname().unwrap());
     }
 }
