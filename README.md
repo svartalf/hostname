@@ -1,15 +1,12 @@
-hostname
-========
+# hostname
 
-[![docs](https://docs.rs/hostname/badge.svg?version=0.1.3 "docs")](https://docs.rs/hostname)
+[![docs](https://docs.rs/hostname/badge.svg?version=0.1.5 'docs')](https://docs.rs/hostname)
 
 Get hostname. Compatible with windows and unix.
 
-[Document](https://docs.rs/hostname)
-------------------------------------
+## [Document](https://docs.rs/hostname)
 
-Usage
------
+## Usage
 
 Add dependency to Cargo.toml
 
@@ -24,8 +21,7 @@ In your `main.rs` or `lib.rs`:
 extern crate hostname;
 ```
 
-Examples
---------
+## Examples
 
 ```rust
 use hostname::get_hostname;
@@ -33,8 +29,7 @@ use hostname::get_hostname;
 assert!(get_hostname().is_some());
 ```
 
-License
--------
+## License
 
 hostname is primarily distributed under the terms of the MIT license.
 See [LICENSE](LICENSE) for details.
