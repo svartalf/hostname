@@ -12,7 +12,7 @@
 #[cfg(windows)]
 extern crate winutil;
 
-#[cfg(unix)]
+#[cfg(any(unix, target_os = "redox"))]
 extern crate libc;
 
 
@@ -23,16 +23,16 @@ pub fn get_hostname() -> Option<String> {
 }
 
 
-#[cfg(unix)]
+#[cfg(any(unix, target_os = "redox"))]
 extern "C" {
     fn gethostname(name: *mut libc::c_char, size: libc::size_t) -> libc::c_int;
 }
 
-#[cfg(unix)]
+#[cfg(any(unix, target_os = "redox"))]
 use std::ffi::CStr;
 
 /// Get hostname.
-#[cfg(unix)]
+#[cfg(any(unix, target_os = "redox"))]
 pub fn get_hostname() -> Option<String> {
     let len = 255;
     let mut buf = Vec::<u8>::with_capacity(len);
