@@ -15,13 +15,11 @@ extern crate winutil;
 #[cfg(any(unix, target_os = "redox"))]
 extern crate libc;
 
-
 /// Get hostname.
 #[cfg(windows)]
 pub fn get_hostname() -> Option<String> {
     winutil::get_computer_name()
 }
-
 
 #[cfg(any(unix, target_os = "redox"))]
 extern "C" {
