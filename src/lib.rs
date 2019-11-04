@@ -1,63 +1,112 @@
-//! Get hostname. Compatible with windows and linux.
+//! A crate with utilities to get and set the system host name.
 //!
-//! # Examples
+//! ## Examples
+//!
+//! Set and get the host name:
+//!
+//! ```rust,no_run
+//! # use std::io;
+//! # use std::ffi::OsStr;
+//! # fn try_main() -> io::Result<()> {
+//! hostname::set("potato")?;
+//! let new_name = hostname::get()?;
+//! assert_eq!(new_name, OsStr::new("potato"));
+//! # Ok(())
+//! # }
+//! # fn main() {
+//! #    try_main().unwrap();
+//! # }
 //! ```
-//! extern crate hostname;
-//!
-//! assert!(hostname::get_hostname().is_some());
-//! ```
-//!
-#![cfg_attr(all(feature = "unstable", test), feature(test))]
+#![doc(html_root_url = "https://docs.rs/hostname/0.1.5")]
+#![deny(
+    unused,
+    unused_imports,
+    unused_features,
+    bare_trait_objects,
+    missing_debug_implementations,
+    missing_docs,
+    nonstandard_style,
+    dead_code,
+    deprecated,
+    rust_2018_idioms,
+    trivial_casts,
+    unused_import_braces,
+    unused_results
+)]
+#![allow(unknown_lints, unused_extern_crates)]
 
-#[cfg(windows)]
-extern crate winutil;
+#[macro_use]
+extern crate match_cfg;
 
-#[cfg(any(unix, target_os = "redox"))]
-extern crate libc;
+use std::ffi::{OsStr, OsString};
+use std::io;
 
-/// Get hostname.
-#[cfg(windows)]
-pub fn get_hostname() -> Option<String> {
-    winutil::get_computer_name()
-}
+match_cfg! {
+    #[cfg(any(unix, target_os = "redox"))] => {
+        extern crate libc;
 
-#[cfg(any(unix, target_os = "redox"))]
-extern "C" {
-    fn gethostname(name: *mut libc::c_char, size: libc::size_t) -> libc::c_int;
-}
+        mod nix;
+        use ::nix as sys;
+    }
+    #[cfg(target_os = "windows")] => {
+        extern crate winapi;
 
-#[cfg(any(unix, target_os = "redox"))]
-use std::ffi::CStr;
-
-/// Get hostname.
-#[cfg(any(unix, target_os = "redox"))]
-pub fn get_hostname() -> Option<String> {
-    let len = 255;
-    let mut buf = Vec::<u8>::with_capacity(len);
-    let ptr = buf.as_mut_ptr() as *mut libc::c_char;
-
-    unsafe {
-        if gethostname(ptr, len as libc::size_t) != 0 {
-            return None;
-        }
-
-        Some(CStr::from_ptr(ptr).to_string_lossy().into_owned())
+        mod windows;
+        use ::windows as sys;
+    }
+    _ => {
+        compile_error!("Unsupported target OS! Create an issue: https://github.com/svartalf/hostname/issues/new");
     }
 }
 
-#[test]
-fn test_get_hostname() {
-    assert!(get_hostname().is_some());
-    assert!(!get_hostname().unwrap().is_empty());
+/// Return the system hostname.
+///
+/// ## Example
+///
+/// ```rust
+/// # use std::io;
+/// # fn try_main() -> io::Result<()> {
+/// let name = hostname::get()?;
+/// # Ok(())
+/// # }
+/// # fn main() {
+/// #    try_main().unwrap();
+/// # }
+/// ```
+pub fn get() -> io::Result<OsString> {
+    sys::get()
 }
 
-#[cfg(all(feature = "unstable", test))]
-mod benches {
-    extern crate test;
-    use super::get_hostname;
+/// Set the system hostname.
+///
+/// ## Example
+///
+/// ```rust,no_run
+/// # use std::io;
+/// # fn try_main() -> io::Result<()> {
+/// hostname::set("potato")?;
+/// # Ok(())
+/// # }
+/// # fn main() {
+/// #    try_main().unwrap();
+/// # }
+/// ```
+pub fn set<T>(hostname: T) -> io::Result<()>
+where
+    T: AsRef<OsStr>,
+{
+    sys::set(hostname.as_ref())
+}
 
-    #[bench]
-    fn bench_get_hostname(b: &mut test::Bencher) {
-        b.iter(|| get_hostname().unwrap())
-    }
+/// Get hostname.
+///
+/// ## Deprecation
+///
+/// This function is deprecated and will be removed in the `0.3.0` version.
+/// Consider using [get](fn.get.html) instead.
+#[deprecated(since = "0.2.0", note = "Use hostname::get() instead")]
+pub fn get_hostname() -> Option<String> {
+    get()
+        .ok()
+        .map(|os_string| os_string.to_string_lossy().into_owned())
 }
