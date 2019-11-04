@@ -6,34 +6,44 @@
 ![Minimum rustc version](https://img.shields.io/badge/rustc-1.19+-green.svg)
 ![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
-> Cross-platform hostname functions, compatible with Windows and *nix systems.
+> Cross-platform hostname functions in Rust
 
-## [Document](https://docs.rs/hostname)
+## Rust version requirements
+
+Since version `0.2.0` this crate requires Rust version `1.19.0` or greater.
+
+This version is explicitly tested in CI
+and may be bumped in any major or minor release as needed.\
+Maintaining compatibility with older compilers is a priority though,
+so the bar for bumping the minimum supported version is set very high.
+Any changes to the supported minimum version will be called out in the release notes.
 
 ## Usage
 
-Add dependency to Cargo.toml
+Add the following dependency to your Cargo manifest:
 
 ```toml
 [dependencies]
-hostname = "^0.1"
+hostname = "^0.2"
 ```
 
-In your `main.rs` or `lib.rs`:
+Crate API provides two simple functions for retrieving and settings the system hostname:
 
 ```rust
-extern crate hostname;
-```
+use std::io;
 
-## Examples
+fn main() -> io::Result<()> {
+    // Retrieve the hostname
+    dbg!(hostname::get()?);
 
-```rust
-use hostname::get_hostname;
+    // And set a new one
+    hostname::set("potato")?;
 
-assert!(get_hostname().is_some());
+    Ok(())
+}
 ```
 
 ## License
 
-hostname is primarily distributed under the terms of the MIT license.
-See [LICENSE](LICENSE) for details.
+hostname is primarily distributed under the terms of the MIT license
+([LICENSE](LICENSE) or http://opensource.org/licenses/MIT).
