@@ -10,7 +10,7 @@
 
 ## Supported platforms
 
- * Any *nix system (Linux, FreeBSD, OpenBSD, NetBSD)
+ * Any *nix system (Linux, FreeBSD, OpenBSD, NetBSD, Solaris, etc)
  * macOS
  * Windows
  * Redox
@@ -35,7 +35,7 @@ Add the following dependency to your Cargo manifest:
 hostname = "^0.2"
 ```
 
-Crate API provides two simple functions for retrieving and settings the system hostname:
+Crate API provides two simple functions for retrieving and setting the system hostname:
 
 ```rust
 use std::io;
