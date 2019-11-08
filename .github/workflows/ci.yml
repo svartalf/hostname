@@ -2,9 +2,41 @@ on: push
 name: Continuous integration
 
 jobs:
-  ci:
-    name: CI
-    runs-on: ${{matrix.os}}
+  lints:
+    name: Lints
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+
+      - name: Run rustfmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args:  --all -- --check
+
+      - name: Run clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-targets --all-features -- -D warnings -A clippy::needless_doctest_main
+
+  tier1:
+    name: Tier 1
+    needs: lints
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os:
@@ -33,33 +65,38 @@ jobs:
         with:
           command: test
 
-  lints:
-    name: Lints
-    runs-on: ${{matrix.os}}
+  tier2:
+    name: Tier 2
+    needs: tier1
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os:
-          - ubuntu-latest
-          - macOS-latest
-          - windows-latest
+        target:
+          # Solaris
+          - x86_64-sun-solaris
+
+          # DragonflyBSD
+          # TODO: No std available
+          # - x86_64-unknown-dragonfly
+
+          # NetBSD
+          - x86_64-unknown-netbsd
+
+          # Android
+          - arm-linux-androideabi
+          - aarch64-linux-android
     steps:
       - uses: actions/checkout@v1
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          toolchain: stable
+          target: ${{ matrix.target }}
           override: true
-          components: rustfmt, clippy
 
-      - name: Run rustfmt
+      - name: Run build
         uses: actions-rs/cargo@v1
         with:
-          command: fmt
-          args:  --all -- --check
-
-      - name: Run clippy
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --all-targets --all-features -- -D warnings -A clippy::needless_doctest_main
+          use-cross: true
+          command: build
