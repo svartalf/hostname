@@ -17,7 +17,7 @@
 //! #    try_main().unwrap();
 //! # }
 //! ```
-#![doc(html_root_url = "https://docs.rs/hostname/0.1.5")]
+#![doc(html_root_url = "https://docs.rs/hostname/0.2.0")]
 #![deny(
     unused,
     unused_imports,
@@ -73,6 +73,12 @@ match_cfg! {
 /// #    try_main().unwrap();
 /// # }
 /// ```
+///
+/// ## Errors
+///
+/// If this function encounters any form of error, an error
+/// variant will be returned;
+/// in practice it is rare to be happen.
 pub fn get() -> io::Result<OsString> {
     sys::get()
 }
@@ -91,6 +97,14 @@ pub fn get() -> io::Result<OsString> {
 /// #    try_main().unwrap();
 /// # }
 /// ```
+///
+/// ## Errors
+///
+/// In order to set new hostname, caller might need
+/// to have the corresponding privilege
+/// (`CAP_SYS_ADMIN` capability for Linux, administrator privileges for Windows,
+/// and so on).\ An error variant will be returned if this function
+/// will encounter a permission error or any other form of error.
 pub fn set<T>(hostname: T) -> io::Result<()>
 where
     T: AsRef<OsStr>,

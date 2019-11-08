@@ -8,6 +8,14 @@
 
 > Cross-platform hostname functions in Rust
 
+## Supported platforms
+
+ * Any *nix system (Linux, FreeBSD, OpenBSD, NetBSD)
+ * macOS
+ * Windows
+ * Redox
+ * Android (*untested*)
+
 ## Rust version requirements
 
 Since version `0.2.0` this crate requires Rust version `1.19.0` or greater.

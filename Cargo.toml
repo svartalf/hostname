@@ -1,12 +1,14 @@
 [package]
 name = "hostname"
-version = "0.1.5"
-description = "Get hostname. Compatible with windows and linux, redox."
-keywords = ["hostname"]
-authors = ["fengcen <fengcen.love@gmail.com>"]
+version = "0.2.0"
+description = "Cross-platform hostname functions"
+categories = ["api-bindings", "os"]
+keywords = ["hostname", "gethostname", "sethostname", "GetComputerNameExW"]
+authors = [
+    "fengcen <fengcen.love@gmail.com>",
+    "svartalf <self@svartalf.info>"
+]
 repository = "https://github.com/fengcen/hostname.git"
-homepage = "https://github.com/fengcen/hostname"
-documentation = "https://docs.rs/hostname"
 readme = "README.md"
 license = "MIT"
 
@@ -25,3 +27,6 @@ libc = "^0.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 winapi = { version = "^0.3", features = ["sysinfoapi"] }
+
+[dev-dependencies]
+version-sync = "0.8"
