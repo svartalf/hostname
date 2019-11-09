@@ -1,9 +1,9 @@
 [package]
 name = "hostname"
 version = "0.2.0"
-description = "Cross-platform hostname functions"
+description = "Cross-platform system's host name functions"
 categories = ["api-bindings", "os"]
-keywords = ["hostname", "gethostname", "sethostname", "GetComputerNameExW"]
+keywords = ["hostname", "gethostname", "sethostname"]
 authors = [
     "fengcen <fengcen.love@gmail.com>",
     "svartalf <self@svartalf.info>"
@@ -11,13 +11,6 @@ authors = [
 repository = "https://github.com/fengcen/hostname.git"
 readme = "README.md"
 license = "MIT"
-
-[lib]
-name = "hostname"
-path = "src/lib.rs"
-
-[features]
-unstable = []
 
 [dependencies]
 match_cfg = "^0.1"
