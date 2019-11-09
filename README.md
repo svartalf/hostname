@@ -6,15 +6,13 @@
 ![Minimum rustc version](https://img.shields.io/badge/rustc-1.19+-green.svg)
 ![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
-> Cross-platform hostname functions in Rust
+> Cross-platform system's host name functions in Rust
 
 ## Supported platforms
 
- * Any *nix system (Linux, FreeBSD, OpenBSD, NetBSD, Solaris, etc)
- * macOS
+ * [POSIX-compliant](https://en.wikipedia.org/wiki/POSIX#POSIX-oriented_operating_systems) systems\
+   (Linux, macOS, Android, FreeBSD, OpenBSD, NetBSD, Solaris, Redox, and so on)
  * Windows
- * Redox
- * Android (*untested*)
 
 ## Rust version requirements
 
@@ -35,7 +33,7 @@ Add the following dependency to your Cargo manifest:
 hostname = "^0.2"
 ```
 
-Crate API provides two simple functions for retrieving and setting the system hostname:
+Crate API provides two simple functions for retrieving and setting the system's host name:
 
 ```rust
 use std::io;

@@ -1,4 +1,4 @@
-//! A crate with utilities to get and set the system host name.
+//! A crate with utilities to get and set the system's host name.
 //!
 //! ## Examples
 //!
@@ -77,8 +77,7 @@ match_cfg! {
 /// ## Errors
 ///
 /// If this function encounters any form of error, an error
-/// variant will be returned;
-/// in practice it is rare to be happen.
+/// variant will be returned; in practice it is rare to be happen.
 pub fn get() -> io::Result<OsString> {
     sys::get()
 }
