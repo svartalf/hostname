@@ -23,6 +23,8 @@ jobs:
 
       - name: Run rustfmt
         uses: actions-rs/cargo@v1
+        # No need to execute it multiple times
+        if: matrix.os == 'ubuntu-latest'
         with:
           command: fmt
           args:  --all -- --check
@@ -55,16 +57,23 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           override: true
 
-      - name: Run build
+      - name: Check without features
         uses: actions-rs/cargo@v1
         with:
-          command: build
+          command: check
+
+      - name: Check with all features enabled
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --all-features
 
       - name: Run tests
         if: matrix.toolchain == 'stable'
         uses: actions-rs/cargo@v1
         with:
           command: test
+          args: --all-features
 
   tier2:
     name: Tier 2
@@ -85,7 +94,9 @@ jobs:
 
           # Android
           - arm-linux-androideabi
+          - armv7-linux-androideabi
           - aarch64-linux-android
+          - i686-linux-android
     steps:
       - uses: actions/checkout@v1
       - name: Install Rust toolchain
@@ -101,3 +112,32 @@ jobs:
         with:
           use-cross: true
           command: build
+          args: --all-features
+
+  tier2_ios:
+    name: Tier 2 (iOS)
+    needs: tier1
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        target:
+          - armv7-apple-ios
+          - armv7s-apple-ios
+          - x86_64-apple-ios
+          - aarch64-apple-ios
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+
+      - name: Run build
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --all-features

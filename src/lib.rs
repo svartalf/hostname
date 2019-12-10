@@ -38,7 +38,9 @@
 #[macro_use]
 extern crate match_cfg;
 
-use std::ffi::{OsStr, OsString};
+#[cfg(feature = "set")]
+use std::ffi::OsStr;
+use std::ffi::OsString;
 use std::io;
 
 match_cfg! {
@@ -84,6 +86,9 @@ pub fn get() -> io::Result<OsString> {
 
 /// Set the system hostname.
 ///
+/// This function is available only with `set` feature enabled (**disabled** by
+/// default).
+///
 /// ## Example
 ///
 /// ```rust,no_run
@@ -102,8 +107,14 @@ pub fn get() -> io::Result<OsString> {
 /// In order to set new hostname, caller might need
 /// to have the corresponding privilege
 /// (`CAP_SYS_ADMIN` capability for Linux, administrator privileges for Windows,
-/// and so on).\ An error variant will be returned if this function
+/// and so on).\
+/// An error variant will be returned if this function
 /// will encounter a permission error or any other form of error.
+///
+/// ## Compatibility
+///
+/// * Will fail with a linkage error for Android API < 23 (see [#9](https://github.com/svartalf/hostname/issues/9#issuecomment-563991112))
+#[cfg(feature = "set")]
 pub fn set<T>(hostname: T) -> io::Result<()>
 where
     T: AsRef<OsStr>,

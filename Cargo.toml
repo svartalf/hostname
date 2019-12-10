@@ -12,6 +12,11 @@ repository = "https://github.com/svartalf/hostname"
 readme = "README.md"
 license = "MIT"
 
+[features]
+default = []
+# Enables the `hostname::set` function
+set = []
+
 [dependencies]
 match_cfg = "^0.1"
 
@@ -23,3 +28,6 @@ winapi = { version = "^0.3", features = ["sysinfoapi"] }
 
 [dev-dependencies]
 version-sync = "0.8"
+
+[package.metadata.docs.rs]
+features = ["set"]

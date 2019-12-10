@@ -1,7 +1,11 @@
-use std::ffi::{OsStr, OsString};
 use std::io;
-use std::os::windows::ffi::{OsStrExt, OsStringExt};
 use std::ptr;
+#[cfg(feature = "set")]
+use std::ffi::OsStr;
+use std::ffi::OsString;
+#[cfg(feature = "set")]
+use std::os::windows::ffi::OsStrExt;
+use std::os::windows::ffi::OsStringExt;
 
 use winapi::um::sysinfoapi;
 
@@ -39,6 +43,7 @@ pub fn get() -> io::Result<OsString> {
     }
 }
 
+#[cfg(feature = "set")]
 pub fn set(hostname: &OsStr) -> io::Result<()> {
     let buffer = hostname.encode_wide().collect::<Vec<_>>();
     let result = unsafe {

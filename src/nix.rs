@@ -1,6 +1,10 @@
-use std::ffi::{OsStr, OsString};
 use std::io;
-use std::os::unix::ffi::{OsStrExt, OsStringExt};
+#[cfg(feature = "set")]
+use std::ffi::OsStr;
+use std::ffi::OsString;
+#[cfg(feature = "set")]
+use std::os::unix::ffi::OsStrExt;
+use std::os::unix::ffi::OsStringExt;
 
 use libc;
 
@@ -38,12 +42,23 @@ fn wrap_buffer(mut bytes: Vec<u8>) -> OsString {
     OsString::from_vec(bytes)
 }
 
+#[cfg(feature = "set")]
 pub fn set(hostname: &OsStr) -> io::Result<()> {
-    #[cfg(not(any(target_os = "macos")))]
-    let size = hostname.len() as libc::size_t;
+    #[cfg(not(any(target_os = "dragonfly",
+                     target_os = "freebsd",
+                     target_os = "ios",
+                     target_os = "macos")))]
+    #[allow(non_camel_case_types)]
+    type hostname_len_t = libc::size_t;
 
-    #[cfg(any(target_os = "macos"))]
-    let size = hostname.len() as libc::c_int;
+    #[cfg(any(target_os = "dragonfly",
+                     target_os = "freebsd",
+                     target_os = "ios",
+                     target_os = "macos"))]
+    #[allow(non_camel_case_types)]
+    type hostname_len_t = libc::c_int;
+
+    let size = hostname.len() as hostname_len_t;
 
     let result = unsafe {
         libc::sethostname(

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Cargo feature `set` which enables the `hostname::set` function compilation (disabled by default)
+- Note that `hostname::set` will fail the compilation for Android API < 23
+
+### Changed
+
+- `hostname::set` is available only with Cargo `set` feature enabled
+- Fix compilation issue for FreeBSD, DragonFlyBSD and iOS targets (#9)
+
 ## [0.2.0] - 2019-11-09
 
 ### Added
