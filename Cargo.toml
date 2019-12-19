@@ -1,6 +1,6 @@
 [package]
 name = "hostname"
-version = "0.2.0"
+version = "0.3.0"
 description = "Cross-platform system's host name functions"
 categories = ["api-bindings", "os"]
 keywords = ["hostname", "gethostname", "sethostname"]

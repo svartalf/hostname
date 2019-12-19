@@ -17,7 +17,7 @@
 //! #    try_main().unwrap();
 //! # }
 //! ```
-#![doc(html_root_url = "https://docs.rs/hostname/0.2.0")]
+#![doc(html_root_url = "https://docs.rs/hostname/0.3.0")]
 #![deny(
     unused,
     unused_imports,

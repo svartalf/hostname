@@ -31,7 +31,7 @@ Add the following dependency to your Cargo manifest:
 
 ```toml
 [dependencies]
-hostname = "^0.2"
+hostname = "^0.3"
 ```
 
 Crate API provides two simple functions for retrieving and setting the system's host name:
