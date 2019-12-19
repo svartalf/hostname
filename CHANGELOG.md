@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `hostname::set` is available only with Cargo `set` feature enabled
 - Fix compilation issue for FreeBSD, DragonFlyBSD and iOS targets (#9)
+- Deprecated function `get_hostname` was removed, use `get` instead
 
 ## [0.2.0] - 2019-11-09
 

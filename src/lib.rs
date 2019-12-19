@@ -121,16 +121,3 @@ where
 {
     sys::set(hostname.as_ref())
 }
-
-/// Get hostname.
-///
-/// ## Deprecation
-///
-/// This function is deprecated and will be removed in the `0.3.0` version.
-/// Consider using [get](fn.get.html) instead.
-#[deprecated(since = "0.2.0", note = "Use hostname::get() instead")]
-pub fn get_hostname() -> Option<String> {
-    get()
-        .ok()
-        .map(|os_string| os_string.to_string_lossy().into_owned())
-}
