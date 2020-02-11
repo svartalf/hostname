@@ -31,3 +31,4 @@ version-sync = "0.8"
 
 [package.metadata.docs.rs]
 features = ["set"]
+rustdoc-args = ["--cfg", "docsrs"]

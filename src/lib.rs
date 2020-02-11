@@ -1,22 +1,43 @@
 //! A crate with utilities to get and set the system's host name.
 //!
 //! ## Examples
-//!
-//! Set and get the host name:
-//!
-//! ```rust,no_run
-//! # use std::io;
-//! # use std::ffi::OsStr;
-//! # fn try_main() -> io::Result<()> {
-//! hostname::set("potato")?;
-//! let new_name = hostname::get()?;
-//! assert_eq!(new_name, OsStr::new("potato"));
-//! # Ok(())
-//! # }
-//! # fn main() {
-//! #    try_main().unwrap();
-//! # }
-//! ```
+#![cfg_attr(
+    feature = "set",
+    doc = r#"
+Set and get the host name:
+```rust,no_run
+# use std::io;
+# use std::ffi::OsStr;
+# fn try_main() -> io::Result<()> {
+hostname::set("potato")?;
+let new_name = hostname::get()?;
+assert_eq!(new_name, OsStr::new("potato"));
+# Ok(())
+# }
+# fn main() {
+#    try_main().unwrap();
+# }
+```
+"#
+)]
+#![cfg_attr(
+    not(feature = "set"),
+    doc = r#"
+Get the host name:
+```rust,no_run
+# use std::io;
+# use std::ffi::OsStr;
+# fn try_main() -> io::Result<()> {
+let name = hostname::get()?;
+println!("{:?}", name);
+# Ok(())
+# }
+# fn main() {
+#    try_main().unwrap();
+# }
+```
+"#
+)]
 #![doc(html_root_url = "https://docs.rs/hostname/0.3.0")]
 #![deny(
     unused,
@@ -88,20 +109,23 @@ pub fn get() -> io::Result<OsString> {
 ///
 /// This function is available only with `set` feature enabled (**disabled** by
 /// default).
-///
-/// ## Example
-///
-/// ```rust,no_run
-/// # use std::io;
-/// # fn try_main() -> io::Result<()> {
-/// hostname::set("potato")?;
-/// # Ok(())
-/// # }
-/// # fn main() {
-/// #    try_main().unwrap();
-/// # }
-/// ```
-///
+#[cfg_attr(
+    feature = "set",
+    doc = r#"
+## Example
+
+```rust,no_run
+# use std::io;
+# fn try_main() -> io::Result<()> {
+hostname::set("potato")?;
+# Ok(())
+# }
+# fn main() {
+#    try_main().unwrap();
+# }
+```
+"#
+)]
 /// ## Errors
 ///
 /// In order to set new hostname, caller might need
@@ -115,6 +139,7 @@ pub fn get() -> io::Result<OsString> {
 ///
 /// * Will fail with a linkage error for Android API < 23 (see [#9](https://github.com/svartalf/hostname/issues/9#issuecomment-563991112))
 #[cfg(feature = "set")]
+#[cfg_attr(docsrs, doc(cfg(feature = "set")))]
 pub fn set<T>(hostname: T) -> io::Result<()>
 where
     T: AsRef<OsStr>,
