@@ -61,6 +61,10 @@ pub fn set(hostname: &OsStr) -> io::Result<()> {
     #[allow(non_camel_case_types)]
     type hostname_len_t = libc::c_int;
 
+    if hostname.len() > hostname_len_t::MAX {
+        return Err(io::Error::new(io::ErrorKind::Other, "hostname too long"));
+    }
+
     let size = hostname.len() as hostname_len_t;
 
     let result = unsafe {
