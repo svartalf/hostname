@@ -16,7 +16,8 @@ pub fn get() -> io::Result<OsString> {
     let size =
         unsafe { libc::sysconf(libc::_SC_HOST_NAME_MAX) as libc::size_t };
 
-    let mut buffer = vec![0u8; size];
+    // Reserve additional space for terminating nul byte.
+    let mut buffer = vec![0u8; size + 1];
 
     let result = unsafe {
         libc::gethostname(buffer.as_mut_ptr() as *mut libc::c_char, size)
