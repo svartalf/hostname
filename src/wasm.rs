@@ -2,9 +2,6 @@ use std::io;
 #[cfg(feature = "set")]
 use std::ffi::OsStr;
 use std::ffi::OsString;
-#[cfg(feature = "set")]
-use std::os::unix::ffi::OsStrExt;
-use std::os::unix::ffi::OsStringExt;
 
 use libc;
 
