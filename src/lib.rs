@@ -71,6 +71,13 @@ match_cfg! {
         mod nix;
         use ::nix as sys;
     }
+    #[cfg(target_family = "wasm")] => {
+        extern crate libc;
+
+        mod wasm;
+
+        use ::wasm as sys;
+    }
     #[cfg(target_os = "windows")] => {
         extern crate winapi;
 
