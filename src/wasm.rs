@@ -8,23 +8,18 @@ use std::os::unix::ffi::OsStringExt;
 
 use libc;
 
+const _SC_HOST_NAME_MAX: libc::c_int = 180;
+
 pub fn get() -> io::Result<OsString> {
     // According to the POSIX specification,
     // host names are limited to `HOST_NAME_MAX` bytes
     //
     // https://pubs.opengroup.org/onlinepubs/9699919799/functions/gethostname.html
     let size =
-        unsafe { libc::sysconf(libc::_SC_HOST_NAME_MAX) as libc::size_t };
+        unsafe { libc::sysconf(_SC_HOST_NAME_MAX) as libc::size_t };
 
-    let mut buffer = vec![0u8; size];
-
-    let result = unsafe {
-        libc::gethostname(buffer.as_mut_ptr() as *mut libc::c_char, size)
-    };
-
-    if result != 0 {
-        return Err(io::Error::last_os_error());
-    }
+    // "wasihost" string buffer
+    let mut buffer = vec![0x77,0x61,0x73,0x69,0x68,0x6f,0x73,0x74,0x00; size];
 
     Ok(wrap_buffer(buffer))
 }
