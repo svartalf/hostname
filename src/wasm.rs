@@ -37,38 +37,6 @@ fn wrap_buffer(mut bytes: Vec<u8>) -> OsString {
     OsString::from_vec(bytes)
 }
 
-#[cfg(feature = "set")]
-pub fn set(hostname: &OsStr) -> io::Result<()> {
-    #[cfg(not(any(target_os = "dragonfly",
-                     target_os = "freebsd",
-                     target_os = "ios",
-                     target_os = "macos")))]
-    #[allow(non_camel_case_types)]
-    type hostname_len_t = libc::size_t;
-
-    #[cfg(any(target_os = "dragonfly",
-                     target_os = "freebsd",
-                     target_os = "ios",
-                     target_os = "macos"))]
-    #[allow(non_camel_case_types)]
-    type hostname_len_t = libc::c_int;
-
-    let size = hostname.len() as hostname_len_t;
-
-    let result = unsafe {
-        libc::sethostname(
-            hostname.as_bytes().as_ptr() as *const libc::c_char,
-            size,
-        )
-    };
-
-    if result != 0 {
-        Err(io::Error::last_os_error())
-    } else {
-        Ok(())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use std::ffi::OsStr;
