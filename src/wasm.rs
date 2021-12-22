@@ -34,6 +34,11 @@ fn wrap_buffer(mut bytes: Vec<u8>) -> OsString {
     OsString::from_vec(bytes)
 }
 
+#[cfg(feature = "set")]
+pub fn set(hostname: &OsStr) -> io::Result<()> {
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use std::ffi::OsStr;
