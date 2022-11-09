@@ -27,7 +27,7 @@ libc = "^0.2"
 winapi = { version = "^0.3", features = ["sysinfoapi"] }
 
 [dev-dependencies]
-version-sync = "0.8"
+version-sync = "0.9"
 
 [package.metadata.docs.rs]
 features = ["set"]
