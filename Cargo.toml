@@ -11,6 +11,7 @@ authors = [
 repository = "https://github.com/svartalf/hostname"
 readme = "README.md"
 license = "MIT"
+edition = "2021"
 
 [features]
 default = []

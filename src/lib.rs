@@ -56,8 +56,7 @@ println!("{:?}", name);
 )]
 #![allow(unknown_lints, unused_extern_crates)]
 
-#[macro_use]
-extern crate match_cfg;
+use match_cfg::match_cfg;
 
 #[cfg(feature = "set")]
 use std::ffi::OsStr;
@@ -66,16 +65,12 @@ use std::io;
 
 match_cfg! {
     #[cfg(any(unix, target_os = "redox"))] => {
-        extern crate libc;
-
         mod nix;
-        use ::nix as sys;
+        use crate::nix as sys;
     }
     #[cfg(target_os = "windows")] => {
-        extern crate winapi;
-
         mod windows;
-        use ::windows as sys;
+        use crate::windows as sys;
     }
     _ => {
         compile_error!("Unsupported target OS! Create an issue: https://github.com/svartalf/hostname/issues/new");
