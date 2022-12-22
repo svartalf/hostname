@@ -56,23 +56,22 @@ println!("{:?}", name);
 )]
 #![allow(unknown_lints, unused_extern_crates)]
 
-use match_cfg::match_cfg;
+
+use cfg_if::cfg_if;
 
 #[cfg(feature = "set")]
 use std::ffi::OsStr;
 use std::ffi::OsString;
 use std::io;
 
-match_cfg! {
-    #[cfg(any(unix, target_os = "redox"))] => {
+cfg_if! {
+    if #[cfg(any(unix, target_os = "redox"))] {
         mod nix;
         use crate::nix as sys;
-    }
-    #[cfg(target_os = "windows")] => {
+    } else if #[cfg(target_os = "windows")] {
         mod windows;
         use crate::windows as sys;
-    }
-    _ => {
+    } else {
         compile_error!("Unsupported target OS! Create an issue: https://github.com/svartalf/hostname/issues/new");
     }
 }
