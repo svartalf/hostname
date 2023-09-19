@@ -8,15 +8,18 @@ use std::os::unix::ffi::OsStringExt;
 
 use libc;
 
+const _POSIX_HOST_NAME_MAX: libc::c_long = 255;
+
 pub fn get() -> io::Result<OsString> {
     // According to the POSIX specification,
     // host names are limited to `HOST_NAME_MAX` bytes
     //
     // https://pubs.opengroup.org/onlinepubs/9699919799/functions/gethostname.html
-    let size =
-        unsafe { libc::sysconf(libc::_SC_HOST_NAME_MAX) as libc::size_t };
+    let limit = unsafe { libc::sysconf(libc::_SC_HOST_NAME_MAX) };
+    let size = libc::c_long::max(limit, _POSIX_HOST_NAME_MAX) as usize;
 
-    let mut buffer = vec![0u8; size];
+    // Reserve additional space for terminating nul byte.
+    let mut buffer = vec![0u8; size + 1];
 
     let result = unsafe {
         libc::gethostname(buffer.as_mut_ptr() as *mut libc::c_char, size)
@@ -57,6 +60,10 @@ pub fn set(hostname: &OsStr) -> io::Result<()> {
                      target_os = "macos"))]
     #[allow(non_camel_case_types)]
     type hostname_len_t = libc::c_int;
+
+    if hostname.len() > hostname_len_t::MAX {
+        return Err(io::Error::new(io::ErrorKind::Other, "hostname too long"));
+    }
 
     let size = hostname.len() as hostname_len_t;
 
