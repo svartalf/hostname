@@ -28,7 +28,7 @@ libc = "^0.2"
 windows = { version="^0.43", features=["Win32_Foundation", "Win32_System_SystemInformation"] }
 
 [dev-dependencies]
-version-sync = "0.8"
+version-sync = "0.9"
 
 [package.metadata.docs.rs]
 features = ["set"]
