@@ -11,6 +11,7 @@ authors = [
 repository = "https://github.com/svartalf/hostname"
 readme = "README.md"
 license = "MIT"
+edition = "2021"
 
 [features]
 default = []
@@ -18,13 +19,13 @@ default = []
 set = []
 
 [dependencies]
-match_cfg = "^0.1"
+cfg-if = "^1.0"
 
 [target.'cfg(any(unix, target_os = "redox"))'.dependencies]
 libc = "^0.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-winapi = { version = "^0.3", features = ["sysinfoapi"] }
+windows = { version="^0.43", features=["Win32_Foundation", "Win32_System_SystemInformation"] }
 
 [dev-dependencies]
 version-sync = "0.8"

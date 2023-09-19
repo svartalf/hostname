@@ -1,5 +1,4 @@
 use std::io;
-use std::ptr;
 #[cfg(feature = "set")]
 use std::ffi::OsStr;
 use std::ffi::OsString;
@@ -7,32 +6,40 @@ use std::ffi::OsString;
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::ffi::OsStringExt;
 
-use winapi::um::sysinfoapi;
+
+
+use windows::Win32::System::SystemInformation::ComputerNamePhysicalDnsHostname;
+
+
 
 pub fn get() -> io::Result<OsString> {
+    use windows::core::PWSTR;
+    use windows::Win32::System::SystemInformation::GetComputerNameExW;
+
     let mut size = 0;
     unsafe {
         // Don't care much about the result here,
         // it is guaranteed to return an error,
         // since we passed the NULL pointer as a buffer
-        let result = sysinfoapi::GetComputerNameExW(
-            sysinfoapi::ComputerNamePhysicalDnsHostname,
-            ptr::null_mut(),
+        let result = GetComputerNameExW(
+            ComputerNamePhysicalDnsHostname,
+            PWSTR::null(),
             &mut size,
         );
-        debug_assert_eq!(result, 0);
+        debug_assert_eq!(result.0, 0);
     };
 
     let mut buffer = Vec::with_capacity(size as usize);
+
     let result = unsafe {
-        sysinfoapi::GetComputerNameExW(
-            sysinfoapi::ComputerNamePhysicalDnsHostname,
-            buffer.as_mut_ptr(),
+        GetComputerNameExW(
+            ComputerNamePhysicalDnsHostname,
+            PWSTR::from_raw(buffer.as_mut_ptr()),
             &mut size,
         )
     };
 
-    if result == 0 {
+    if !result.as_bool() {
         Err(io::Error::last_os_error())
     } else {
         unsafe {
@@ -45,15 +52,19 @@ pub fn get() -> io::Result<OsString> {
 
 #[cfg(feature = "set")]
 pub fn set(hostname: &OsStr) -> io::Result<()> {
+    use windows::core::PCWSTR;
+    use windows::Win32::System::SystemInformation::SetComputerNameExW;
+
     let buffer = hostname.encode_wide().collect::<Vec<_>>();
+
     let result = unsafe {
-        sysinfoapi::SetComputerNameExW(
-            sysinfoapi::ComputerNamePhysicalDnsHostname,
-            buffer.as_ptr(),
+        SetComputerNameExW(
+            ComputerNamePhysicalDnsHostname,
+            PCWSTR::from_raw(buffer.as_ptr()),
         )
     };
 
-    if result == 0 {
+    if !result.as_bool() {
         Err(io::Error::last_os_error())
     } else {
         Ok(())
