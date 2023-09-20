@@ -1,16 +1,12 @@
-use std::io;
 #[cfg(feature = "set")]
 use std::ffi::OsStr;
 use std::ffi::OsString;
+use std::io;
 #[cfg(feature = "set")]
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::ffi::OsStringExt;
 
-
-
 use windows::Win32::System::SystemInformation::ComputerNamePhysicalDnsHostname;
-
-
 
 pub fn get() -> io::Result<OsString> {
     use windows::core::PWSTR;
@@ -21,11 +17,7 @@ pub fn get() -> io::Result<OsString> {
         // Don't care much about the result here,
         // it is guaranteed to return an error,
         // since we passed the NULL pointer as a buffer
-        let result = GetComputerNameExW(
-            ComputerNamePhysicalDnsHostname,
-            PWSTR::null(),
-            &mut size,
-        );
+        let result = GetComputerNameExW(ComputerNamePhysicalDnsHostname, PWSTR::null(), &mut size);
         debug_assert_eq!(result.0, 0);
     };
 

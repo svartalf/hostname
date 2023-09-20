@@ -56,7 +56,6 @@ println!("{:?}", name);
 )]
 #![allow(unknown_lints, unused_extern_crates)]
 
-
 use cfg_if::cfg_if;
 
 #[cfg(feature = "set")]

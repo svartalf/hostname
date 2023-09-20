@@ -1,7 +1,7 @@
-use std::io;
 #[cfg(feature = "set")]
 use std::ffi::OsStr;
 use std::ffi::OsString;
+use std::io;
 #[cfg(feature = "set")]
 use std::os::unix::ffi::OsStrExt;
 use std::os::unix::ffi::OsStringExt;
@@ -19,9 +19,7 @@ pub fn get() -> io::Result<OsString> {
     // Reserve additional space for terminating nul byte.
     let mut buffer = vec![0u8; size + 1];
 
-    let result = unsafe {
-        libc::gethostname(buffer.as_mut_ptr() as *mut libc::c_char, size)
-    };
+    let result = unsafe { libc::gethostname(buffer.as_mut_ptr() as *mut libc::c_char, size) };
 
     if result != 0 {
         return Err(io::Error::last_os_error());
@@ -45,33 +43,34 @@ fn wrap_buffer(mut bytes: Vec<u8>) -> OsString {
 
 #[cfg(feature = "set")]
 pub fn set(hostname: &OsStr) -> io::Result<()> {
-    #[cfg(not(any(target_os = "dragonfly",
-                     target_os = "freebsd",
-                     target_os = "ios",
-                     target_os = "macos")))]
+    #[cfg(not(any(
+        target_os = "dragonfly",
+        target_os = "freebsd",
+        target_os = "ios",
+        target_os = "macos"
+    )))]
     #[allow(non_camel_case_types)]
     type hostname_len_t = libc::size_t;
 
-    #[cfg(any(target_os = "dragonfly",
-                     target_os = "freebsd",
-                     target_os = "ios",
-                     target_os = "macos"))]
+    #[cfg(any(
+        target_os = "dragonfly",
+        target_os = "freebsd",
+        target_os = "ios",
+        target_os = "macos"
+    ))]
     #[allow(non_camel_case_types)]
     type hostname_len_t = libc::c_int;
 
-    #[allow(clippy::unnecessary_cast)]  // Cast is needed for the `libc::c_int` type
+    #[allow(clippy::unnecessary_cast)]
+    // Cast is needed for the `libc::c_int` type
     if hostname.len() > hostname_len_t::MAX as usize {
         return Err(io::Error::new(io::ErrorKind::Other, "hostname too long"));
     }
 
     let size = hostname.len() as hostname_len_t;
 
-    let result = unsafe {
-        libc::sethostname(
-            hostname.as_bytes().as_ptr() as *const libc::c_char,
-            size,
-        )
-    };
+    let result =
+        unsafe { libc::sethostname(hostname.as_bytes().as_ptr() as *const libc::c_char, size) };
 
     if result != 0 {
         Err(io::Error::last_os_error())
