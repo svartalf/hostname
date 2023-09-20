@@ -114,4 +114,4 @@ jobs:
           tool: cross
       - name: Run build
         run: |
-          cargo build --all-features --target=${{ matrix.target }}
+          cross build --all-features --target=${{ matrix.target }}
