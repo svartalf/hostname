@@ -6,8 +6,6 @@ use std::ffi::OsString;
 use std::os::unix::ffi::OsStrExt;
 use std::os::unix::ffi::OsStringExt;
 
-use libc;
-
 const _POSIX_HOST_NAME_MAX: libc::c_long = 255;
 
 pub fn get() -> io::Result<OsString> {
@@ -39,7 +37,7 @@ fn wrap_buffer(mut bytes: Vec<u8>) -> OsString {
     let end = bytes
         .iter()
         .position(|&byte| byte == 0x00)
-        .unwrap_or_else(|| bytes.len());
+        .unwrap_or(bytes.len());
     bytes.resize(end, 0x00);
 
     OsString::from_vec(bytes)
@@ -61,7 +59,8 @@ pub fn set(hostname: &OsStr) -> io::Result<()> {
     #[allow(non_camel_case_types)]
     type hostname_len_t = libc::c_int;
 
-    if hostname.len() > hostname_len_t::MAX {
+    #[allow(clippy::unnecessary_cast)]  // Cast is needed for the `libc::c_int` type
+    if hostname.len() > hostname_len_t::MAX as usize {
         return Err(io::Error::new(io::ErrorKind::Other, "hostname too long"));
     }
 

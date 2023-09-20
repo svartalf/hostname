@@ -12,28 +12,21 @@ jobs:
           - macOS-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
           toolchain: nightly
-          override: true
           components: rustfmt, clippy
 
       - name: Run rustfmt
-        uses: actions-rs/cargo@v1
-        # No need to execute it multiple times
         if: matrix.os == 'ubuntu-latest'
-        with:
-          command: fmt
-          args:  --all -- --check
+        run: |
+          cargo fmt --all -- --check
 
       - name: Run clippy
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --all-targets --all-features -- -D warnings -A clippy::needless_doctest_main
+        run: |
+          cargo clippy --all-targets --all-features -- -D warnings
 
   tier1:
     name: Tier 1
@@ -51,29 +44,20 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
           toolchain: ${{ matrix.toolchain }}
           override: true
 
       - name: Check without features
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
+        run: cargo check
 
       - name: Check with all features enabled
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --all-features
+        run: cargo check --all-features
 
       - name: Run tests
         if: matrix.toolchain == 'stable'
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-features
+        run: cargo test --all-features
 
   tier2:
     name: Tier 2
@@ -82,12 +66,17 @@ jobs:
     strategy:
       matrix:
         target:
+          # Linux
+          - aarch64-unknown-linux-gnu
+
+          # macOS
+          - aarch64-apple-darwin
+
           # Solaris
           - x86_64-sun-solaris
 
           # DragonflyBSD
-          # TODO: No std available
-          # - x86_64-unknown-dragonfly
+          - x86_64-unknown-dragonfly
 
           # NetBSD
           - x86_64-unknown-netbsd
@@ -100,19 +89,14 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
           toolchain: stable
-          target: ${{ matrix.target }}
-          override: true
+          targets: ${{ matrix.target }}
 
       - name: Run build
-        uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --all-features
+        run: |
+          cargo build --all-features --target=${{ matrix.target }}
 
   tier2_ios:
     name: Tier 2 (iOS)
@@ -128,16 +112,11 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
           toolchain: stable
-          target: ${{ matrix.target }}
-          override: true
+          targets: ${{ matrix.target }}
 
       - name: Run build
-        uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --all-features
+        run: |
+          cargo build --all-features --target=${{ matrix.target }}
