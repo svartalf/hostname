@@ -18,7 +18,7 @@ pub fn get() -> io::Result<OsString> {
         // it is guaranteed to return an error,
         // since we passed the NULL pointer as a buffer
         let result = GetComputerNameExW(ComputerNamePhysicalDnsHostname, PWSTR::null(), &mut size);
-        debug_assert!(result.is_ok());
+        debug_assert!(result.is_err());
     };
 
     let mut buffer = Vec::with_capacity(size as usize);
