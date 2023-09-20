@@ -47,7 +47,6 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-          override: true
 
       - name: Check without features
         run: cargo check
@@ -88,15 +87,13 @@ jobs:
           - i686-linux-android
     steps:
       - uses: actions/checkout@v1
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@master
+      - name: Install cross tool
+        uses: taiki-e/install-action@v2
         with:
-          toolchain: stable
-          targets: ${{ matrix.target }}
-
+          tool: cross
       - name: Run build
         run: |
-          cargo build --all-features --target=${{ matrix.target }}
+          cross build --all-features --target=${{ matrix.target }}
 
   tier2_ios:
     name: Tier 2 (iOS)
@@ -111,12 +108,10 @@ jobs:
           - aarch64-apple-ios
     steps:
       - uses: actions/checkout@v1
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@master
+      - name: Install cross tool
+        uses: taiki-e/install-action@v2
         with:
-          toolchain: stable
-          targets: ${{ matrix.target }}
-
+          tool: cross
       - name: Run build
         run: |
           cargo build --all-features --target=${{ matrix.target }}
