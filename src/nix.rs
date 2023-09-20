@@ -1,12 +1,10 @@
-use std::io;
 #[cfg(feature = "set")]
 use std::ffi::OsStr;
 use std::ffi::OsString;
+use std::io;
 #[cfg(feature = "set")]
 use std::os::unix::ffi::OsStrExt;
 use std::os::unix::ffi::OsStringExt;
-
-use libc;
 
 const _POSIX_HOST_NAME_MAX: libc::c_long = 255;
 
@@ -21,9 +19,8 @@ pub fn get() -> io::Result<OsString> {
     // Reserve additional space for terminating nul byte.
     let mut buffer = vec![0u8; size + 1];
 
-    let result = unsafe {
-        libc::gethostname(buffer.as_mut_ptr() as *mut libc::c_char, size)
-    };
+    #[allow(trivial_casts)]
+    let result = unsafe { libc::gethostname(buffer.as_mut_ptr() as *mut libc::c_char, size) };
 
     if result != 0 {
         return Err(io::Error::last_os_error());
@@ -39,7 +36,7 @@ fn wrap_buffer(mut bytes: Vec<u8>) -> OsString {
     let end = bytes
         .iter()
         .position(|&byte| byte == 0x00)
-        .unwrap_or_else(|| bytes.len());
+        .unwrap_or(bytes.len());
     bytes.resize(end, 0x00);
 
     OsString::from_vec(bytes)
@@ -47,32 +44,39 @@ fn wrap_buffer(mut bytes: Vec<u8>) -> OsString {
 
 #[cfg(feature = "set")]
 pub fn set(hostname: &OsStr) -> io::Result<()> {
-    #[cfg(not(any(target_os = "dragonfly",
-                     target_os = "freebsd",
-                     target_os = "ios",
-                     target_os = "macos")))]
+    #[cfg(not(any(
+        target_os = "dragonfly",
+        target_os = "freebsd",
+        target_os = "ios",
+        target_os = "macos",
+        target_os = "solaris",
+        target_os = "illumos"
+    )))]
     #[allow(non_camel_case_types)]
     type hostname_len_t = libc::size_t;
 
-    #[cfg(any(target_os = "dragonfly",
-                     target_os = "freebsd",
-                     target_os = "ios",
-                     target_os = "macos"))]
+    #[cfg(any(
+        target_os = "dragonfly",
+        target_os = "freebsd",
+        target_os = "ios",
+        target_os = "macos",
+        target_os = "solaris",
+        target_os = "illumos"
+    ))]
     #[allow(non_camel_case_types)]
     type hostname_len_t = libc::c_int;
 
-    if hostname.len() > hostname_len_t::MAX {
+    #[allow(clippy::unnecessary_cast)]
+    // Cast is needed for the `libc::c_int` type
+    if hostname.len() > hostname_len_t::MAX as usize {
         return Err(io::Error::new(io::ErrorKind::Other, "hostname too long"));
     }
 
     let size = hostname.len() as hostname_len_t;
 
-    let result = unsafe {
-        libc::sethostname(
-            hostname.as_bytes().as_ptr() as *const libc::c_char,
-            size,
-        )
-    };
+    #[allow(trivial_casts)]
+    let result =
+        unsafe { libc::sethostname(hostname.as_bytes().as_ptr() as *const libc::c_char, size) };
 
     if result != 0 {
         Err(io::Error::last_os_error())

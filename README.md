@@ -3,7 +3,7 @@
 [![Latest Version](https://img.shields.io/crates/v/hostname.svg)](https://crates.io/crates/hostname)
 [![Latest Version](https://docs.rs/hostname/badge.svg)](https://docs.rs/hostname)
 [![Build Status](https://github.com/svartalf/hostname/workflows/Continuous%20integration/badge.svg)](https://github.com/svartalf/hostname/actions)
-![Minimum rustc version](https://img.shields.io/badge/rustc-1.19+-green.svg)
+![Minimum rustc version](https://img.shields.io/badge/rustc-1.67+-green.svg)
 ![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Crates.io](https://img.shields.io/crates/d/hostname)
 
@@ -17,7 +17,7 @@
 
 ## Rust version requirements
 
-Since version `0.2.0` this crate requires Rust version `1.19.0` or greater.
+Since version `0.4.0` this crate requires Rust version `1.67.0` or greater.
 
 This version is explicitly tested in CI
 and may be bumped in any major or minor release as needed.\
@@ -31,7 +31,7 @@ Add the following dependency to your Cargo manifest:
 
 ```toml
 [dependencies]
-hostname = "^0.3"
+hostname = "^0.4"
 ```
 
 Crate API provides two simple functions for retrieving and setting the system's host name:

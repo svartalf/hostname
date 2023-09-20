@@ -12,132 +12,284 @@ jobs:
           - macOS-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
           toolchain: nightly
-          override: true
           components: rustfmt, clippy
 
       - name: Run rustfmt
-        uses: actions-rs/cargo@v1
-        # No need to execute it multiple times
         if: matrix.os == 'ubuntu-latest'
-        with:
-          command: fmt
-          args:  --all -- --check
+        run: |
+          cargo fmt --all -- --check
 
       - name: Run clippy
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --all-targets --all-features -- -D warnings -A clippy::needless_doctest_main
+        run: |
+          cargo clippy --all-targets --all-features -- -D warnings
 
   tier1:
+    # Matches the Rust Tier 1 platform support
+    # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-1-with-host-tools
     name: Tier 1
     needs: lints
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os:
-          - ubuntu-latest
-          - macOS-latest
-          - windows-latest
-        toolchain:
-          - 1.19.0
-          - stable
+        include:
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            use_cross: true
+          - os: ubuntu-latest
+            target: i686-unknown-linux-gnu
+            use_cross: true
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+# TODO: Enable it back
+#          - os: windows-latest
+#            target: i686-pc-windows-gnu
+          - os: windows-latest
+            target: i686-pc-windows-msvc
+            use_cross: true
+          - os: windows-latest
+            target: x86_64-pc-windows-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: macos-latest
+            target: x86_64-apple-darwin
     steps:
       - uses: actions/checkout@v1
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
-          toolchain: ${{ matrix.toolchain }}
-          override: true
+          toolchain: 1.67.0
+          targets: ${{ matrix.target }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cross
 
       - name: Check without features
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
+        run: cargo check --target=${{ matrix.target }}
 
       - name: Check with all features enabled
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --all-features
+        run: ${{ env.CARGO_BINARY }} check --all-features --target=${{ matrix.target }}
+        env:
+          CARGO_BINARY: ${{ matrix.use_cross == true && 'cross' || 'cargo' }}
 
       - name: Run tests
-        if: matrix.toolchain == 'stable'
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-features
+        run: ${{ env.CARGO_BINARY }} test --all-features --target=${{ matrix.target }}
+        env:
+          CARGO_BINARY: ${{ matrix.use_cross == true && 'cross' || 'cargo' }}
 
-  tier2:
-    name: Tier 2
+  tier2_with_host_tools:
+    # Matches Rust "Tier 2 with Host Tools" platform support
+    # For as much as possible
+    #
+    # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-2-with-host-tools
+    name: Tier 2 (with Host Tools)
+    needs: tier1
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+          - os: ubuntu-latest
+            target: arm-unknown-linux-gnueabi
+          - os: ubuntu-latest
+            target: arm-unknown-linux-gnueabihf
+          - os: ubuntu-latest
+            target: armv7-unknown-linux-gnueabihf
+          # `rust-std` is not available
+          # - os: ubuntu-latest
+          #   target: loongarch64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: mips-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: mips64-unknown-linux-gnuabi64
+          - os: ubuntu-latest
+            target: mips64el-unknown-linux-gnuabi64
+          - os: ubuntu-latest
+            target: mipsel-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: powerpc-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: powerpc64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: powerpc64le-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: riscv64gc-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: s390x-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.67.0
+          targets: ${{ matrix.target }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+      - name: Run build
+        run: |
+          cross build --all-features --target=${{ matrix.target }}
+
+  tier2_with_host_tools_via_cross:
+    # Matches Rust "Tier 2 with Host Tools" platform support
+    # For as much as possible, but where `cross` is needed for cross-compilation
+    #
+    # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-2-with-host-tools
+    name: Tier 2 (with Host Tools, via Cross)
     needs: tier1
     runs-on: ubuntu-latest
     strategy:
       matrix:
         target:
-          # Solaris
-          - x86_64-sun-solaris
-
-          # DragonflyBSD
-          # TODO: No std available
-          # - x86_64-unknown-dragonfly
-
-          # NetBSD
+          - x86_64-unknown-freebsd
+          - x86_64-unknown-illumos
           - x86_64-unknown-netbsd
-
-          # Android
-          - arm-linux-androideabi
-          - armv7-linux-androideabi
-          - aarch64-linux-android
-          - i686-linux-android
     steps:
       - uses: actions/checkout@v1
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
-          toolchain: stable
-          target: ${{ matrix.target }}
-          override: true
-
+          toolchain: 1.67.0
+          targets: ${{ matrix.target }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cross
       - name: Run build
-        uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --all-features
+        run: |
+          cross build --all-features --target=${{ matrix.target }}
 
-  tier2_ios:
-    name: Tier 2 (iOS)
+  tier2_without_host_tools:
+    # Matches Rust "Tier 2 with host tools" platform support
+    # For as much as possible, but where `cross` is needed for cross-compilation
+    #
+    # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-2-with-host-tools
+    name: Tier 2 (without Host Tools)
     needs: tier1
-    runs-on: macOS-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        target:
-          - armv7-apple-ios
-          - armv7s-apple-ios
-          - x86_64-apple-ios
-          - aarch64-apple-ios
+        include:
+          - os: macos-latest
+            target: aarch64-apple-ios
+          # `rust-std` is not available
+          # - os: ubuntu-latest
+          #   target: aarch64-unknown-fuchsia
+          - os: ubuntu-latest
+            target: aarch64-linux-android
+          - os: ubuntu-latest
+            target: arm-linux-androideabi
+          - os: ubuntu-latest
+            target: arm-unknown-linux-musleabi
+          - os: ubuntu-latest
+            target: arm-unknown-linux-musleabihf
+          - os: ubuntu-latest
+            target: armv5te-unknown-linux-gnueabi
+          - os: ubuntu-latest
+            target: armv5te-unknown-linux-musleabi
+          - os: ubuntu-latest
+            target: armv7-linux-androideabi
+          - os: ubuntu-latest
+            target: armv7-unknown-linux-gnueabi
+          - os: ubuntu-latest
+            target: armv7-unknown-linux-musleabi
+          - os: ubuntu-latest
+            target: armv7-unknown-linux-musleabihf
+          - os: ubuntu-latest
+            target: i586-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: i586-unknown-linux-musl
+          - os: ubuntu-latest
+            target: i686-linux-android
+          - os: ubuntu-latest
+            target: i686-unknown-freebsd
+          - os: ubuntu-latest
+            target: i686-unknown-linux-musl
+          - os: ubuntu-latest
+            target: mips-unknown-linux-musl
+          - os: ubuntu-latest
+            target: mips64-unknown-linux-muslabi64
+          - os: ubuntu-latest
+            target: mips64el-unknown-linux-muslabi64
+          - os: ubuntu-latest
+            target: mipsel-unknown-linux-musl
+          - os: ubuntu-latest
+            target: sparc64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: sparcv9-sun-solaris
+          - os: ubuntu-latest
+            target: thumbv7neon-linux-androideabi
+          - os: ubuntu-latest
+            target: thumbv7neon-unknown-linux-gnueabihf
+          - os: macos-latest
+            target: x86_64-apple-ios
+          # `gethostname` function is not available
+          # - os: ubuntu-latest
+          #   target: x86_64-fortanix-unknown-sgx
+          #
+          # `rust-std` seems to be not available?
+          # - os: ubuntu-latest
+          #   target: x86_64-unknown-fuchsia
+          - os: ubuntu-latest
+            target: x86_64-linux-android
+          - os: ubuntu-latest
+            target: x86_64-pc-solaris
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnux32
     steps:
       - uses: actions/checkout@v1
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
-          toolchain: stable
-          target: ${{ matrix.target }}
-          override: true
-
+          toolchain: 1.67.0
+          targets: ${{ matrix.target }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cross
       - name: Run build
-        uses: actions-rs/cargo@v1
+        run: |
+          cross build --all-features --target=${{ matrix.target }}
+
+  tier2_without_host_tools_default_features:
+    # Matches Rust "Tier 2 with host tools" platform support
+    # For as much as possible, but where `cross` is needed for cross-compilation
+    #
+    # The only difference from the `tier2_without_host_tools` group is that
+    # no optional crate features are enabled (e.g. Redox has `gethostname(2)`, but not the `sethostname(2)`)
+    #
+    # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-2-with-host-tools
+    name: Tier 2 (without Host Tools)
+    needs: tier1
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-redox
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
         with:
-          use-cross: true
-          command: build
-          args: --all-features
+          toolchain: 1.67.0
+          targets: ${{ matrix.target }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+      - name: Run build (default features)
+        run: |
+          cross build --target=${{ matrix.target }}
+
+# TODO: Tier 3
+# - x86_64-unknown-dragonfly
+# And other targets that have `std` compiled

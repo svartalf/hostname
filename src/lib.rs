@@ -38,7 +38,7 @@ println!("{:?}", name);
 ```
 "#
 )]
-#![doc(html_root_url = "https://docs.rs/hostname/0.3.1")]
+#![doc(html_root_url = "https://docs.rs/hostname/0.4.0")]
 #![deny(
     unused,
     unused_imports,
@@ -54,8 +54,6 @@ println!("{:?}", name);
     unused_import_braces,
     unused_results
 )]
-#![allow(unknown_lints, unused_extern_crates)]
-
 
 use cfg_if::cfg_if;
 
