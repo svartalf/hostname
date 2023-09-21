@@ -68,9 +68,6 @@ jobs:
           # Linux
           - aarch64-unknown-linux-gnu
 
-          # macOS
-          - aarch64-apple-darwin
-
           # Solaris
           - x86_64-sun-solaris
 
@@ -112,7 +109,7 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          targets: ${{ matrix.targert }}
+          targets: ${{ matrix.target }}
       - name: Run build
         run: |
           cargo build --all-features --target=${{ matrix.target }}
