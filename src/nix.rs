@@ -57,7 +57,8 @@ pub fn set(hostname: &OsStr) -> io::Result<()> {
         target_os = "dragonfly",
         target_os = "freebsd",
         target_os = "ios",
-        target_os = "macos"
+        target_os = "macos",
+        target_os = "solaris"
     ))]
     #[allow(non_camel_case_types)]
     type hostname_len_t = libc::c_int;
