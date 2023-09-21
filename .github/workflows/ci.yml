@@ -108,10 +108,11 @@ jobs:
           - aarch64-apple-ios
     steps:
       - uses: actions/checkout@v1
-      - name: Install cross tool
-        uses: taiki-e/install-action@v2
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
         with:
-          tool: cross
+          toolchain: stable
+          targets: ${{ matrix.targert }}
       - name: Run build
         run: |
-          cross build --all-features --target=${{ matrix.target }}
+          cargo build --all-features --target=${{ matrix.target }}
