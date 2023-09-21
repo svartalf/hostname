@@ -19,6 +19,7 @@ pub fn get() -> io::Result<OsString> {
     // Reserve additional space for terminating nul byte.
     let mut buffer = vec![0u8; size + 1];
 
+    #[allow(trivial_casts)]
     let result = unsafe { libc::gethostname(buffer.as_mut_ptr() as *mut libc::c_char, size) };
 
     if result != 0 {
@@ -69,6 +70,7 @@ pub fn set(hostname: &OsStr) -> io::Result<()> {
 
     let size = hostname.len() as hostname_len_t;
 
+    #[allow(trivial_casts)]
     let result =
         unsafe { libc::sethostname(hostname.as_bytes().as_ptr() as *const libc::c_char, size) };
 
