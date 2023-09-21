@@ -99,8 +99,6 @@ jobs:
     strategy:
       matrix:
         target:
-          - armv7-apple-ios
-          - armv7s-apple-ios
           - x86_64-apple-ios
           - aarch64-apple-ios
     steps:
