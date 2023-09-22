@@ -58,7 +58,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: 1.60.0
+          toolchain: 1.66.0
           targets: ${{ matrix.target }}
 
       - name: Check without features
@@ -120,7 +120,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: 1.60.0
+          toolchain: 1.66.0
           targets: ${{ matrix.target }}
       - name: Run build
         # TODO: Temporary
@@ -147,7 +147,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: 1.60.0
+          toolchain: 1.66.0
           targets: ${{ matrix.target }}
       - uses: taiki-e/install-action@v2
         with:
@@ -238,7 +238,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: 1.60.0
+          toolchain: 1.66.0
           targets: ${{ matrix.target }}
       - uses: taiki-e/install-action@v2
         with:
