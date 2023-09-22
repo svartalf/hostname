@@ -29,85 +29,226 @@ jobs:
           cargo clippy --all-targets --all-features -- -D warnings
 
   tier1:
+    # Matches the Rust Tier 1 platform support
+    # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-1-with-host-tools
     name: Tier 1
     needs: lints
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os:
-          - ubuntu-latest
-          - macOS-latest
-          - windows-latest
-        toolchain:
-          - 1.56.0
-          - stable
+        include:
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: i686-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            target: i686-pc-windows-gnu
+          - os: windows-latest
+            target: i686-pc-windows-msvc
+          - os: windows-latest
+            target: x86_64-pc-windows-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: macOS-latest
+            target: x86_64-apple-darwin
     steps:
       - uses: actions/checkout@v1
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: ${{ matrix.toolchain }}
+          toolchain: 1.56.0
+          targets: ${{ matrix.target }}
 
       - name: Check without features
         run: cargo check
 
       - name: Check with all features enabled
-        run: cargo check --all-features
+        run: cargo check --all-features --target=${{ matrix.target }}
 
       - name: Run tests
-        if: matrix.toolchain == 'stable'
-        run: cargo test --all-features
+        run: cargo test --all-features --target=${{ matrix.target }}
 
-  tier2:
-    name: Tier 2
+  tier2_with_host_tools:
+    # Matches Rust "Tier 2 with Host Tools" platform support
+    # For as much as possible
+    #
+    # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-2-with-host-tools
+    name: Tier 2 (with Host Tools)
     needs: tier1
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        target:
-          # Linux
-          - aarch64-unknown-linux-gnu
-
-          # Solaris
-          - x86_64-sun-solaris
-
-          # DragonflyBSD
-          - x86_64-unknown-dragonfly
-
-          # NetBSD
-          - x86_64-unknown-netbsd
-
-          # Android
-          - arm-linux-androideabi
-          - armv7-linux-androideabi
-          - aarch64-linux-android
-          - i686-linux-android
-    steps:
-      - uses: actions/checkout@v1
-      - name: Install cross tool
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cross
-      - name: Run build
-        run: |
-          cross build --all-features --target=${{ matrix.target }}
-
-  tier2_ios:
-    name: Tier 2 (iOS)
-    needs: tier1
-    runs-on: macOS-latest
-    strategy:
-      matrix:
-        target:
-          - x86_64-apple-ios
-          - aarch64-apple-ios
+        include:
+          - os: macOS-latest
+            target: aarch64-apple-darwin
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+          - os: linux-latest
+            target: aarch64-unknown-linux-musl
+          - os: linux-latest
+            target: arm-unknown-linux-gnueabi
+          - os: linux-latest
+            target: arm-unknown-linux-gnueabihf
+          - os: linux-latest
+            target: armv7-unknown-linux-gnueabihf
+          - os: linux-latest
+            target: loongarch64-unknown-linux-gnu
+          - os: linux-latest
+            target: mips-unknown-linux-gnu
+          - os: linux-latest
+            target: mips64-unknown-linux-gnuabi64
+          - os: linux-latest
+            target: mips64el-unknown-linux-gnuabi64
+          - os: linux-latest
+            target: mipsel-unknown-linux-gnu
+          - os: linux-latest
+            target: powerpc-unknown-linux-gnu
+          - os: linux-latest
+            target: powerpc64-unknown-linux-gnu
+          - os: linux-latest
+            target: powerpc64le-unknown-linux-gnu
+          - os: linux-latest
+            target: riscv64gc-unknown-linux-gnu
+          - os: linux-latest
+            target: s390x-unknown-linux-gnu
+          - os: linux-latest
+            target: x86_64-unknown-linux-musl
     steps:
       - uses: actions/checkout@v1
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: stable
+          toolchain: 1.56.0
           targets: ${{ matrix.target }}
       - name: Run build
+        # TODO: Temporary
+        continue-on-error: true
         run: |
-          cargo build --all-features --target=${{ matrix.target }}
+          cross build --all-features --target=${{ matrix.target }}
+
+  tier2_with_host_tools_via_cross:
+    # Matches Rust "Tier 2 with Host Tools" platform support
+    # For as much as possible, but where `cross` is needed for cross-compilation
+    #
+    # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-2-with-host-tools
+    name: Tier 2 (with Host Tools, via Cross)
+    needs: tier1
+    runs-on: linux-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-freebsd
+          - x86_64-unknown-illumos
+          - x86_64-unknown-netbsd
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.56.0
+          targets: ${{ matrix.target }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+      - name: Run build
+        # TODO: Temporary
+        continue-on-error: true
+        run: |
+          cross build --all-features --target=${{ matrix.target }}
+
+  tier2_without_host_tools:
+    # Matches Rust "Tier 2 with host tools" platform support
+    # For as much as possible, but where `cross` is needed for cross-compilation
+    #
+    # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-2-with-host-tools
+    name: Tier 2 (without Host Tools)
+    needs: tier1
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macOS-latest
+            target: aarch64-apple-ios
+          - os: linux-latest
+            target: aarch64-unknown-fuchsia
+          - os: linux-latest
+            target: aarch64-linux-android
+          - os: linux-latest
+            target: arm-linux-androideabi
+          - os: linux-latest
+            target: arm-unknown-linux-musleabi
+          - os: linux-latest
+            target: arm-unknown-linux-musleabihf
+          - os: linux-latest
+            target: armv5te-unknown-linux-gnueabi
+          - os: linux-latest
+            target: armv5te-unknown-linux-musleabi
+          - os: linux-latest
+            target: armv7-linux-androideabi
+          - os: linux-latest
+            target: armv7-unknown-linux-gnueabi
+          - os: linux-latest
+            target: armv7-unknown-linux-musleabi
+          - os: linux-latest
+            target: armv7-unknown-linux-musleabihf
+          - os: linux-latest
+            target: i586-unknown-linux-gnu
+          - os: linux-latest
+            target: i586-unknown-linux-musl
+          - os: linux-latest
+            target: i686-linux-android
+          - os: linux-latest
+            target: i686-unknown-freebsd
+          - os: linux-latest
+            target: i686-unknown-linux-musl
+          - os: linux-latest
+            target: mips-unknown-linux-musl
+          - os: linux-latest
+            target: mips64-unknown-linux-muslabi64
+          - os: linux-latest
+            target: mips64el-unknown-linux-muslabi64
+          - os: linux-latest
+            target: mipsel-unknown-linux-musl
+          - os: linux-latest
+            target: sparc64-unknown-linux-gnu
+          - os: linux-latest
+            target: sparcv9-sun-solaris
+          - os: linux-latest
+            target: thumbv7neon-linux-androideabi
+          - os: linux-latest
+            target: thumbv7neon-unknown-linux-gnueabihf
+          - os: macOS-latest
+            target: x86_64-apple-ios
+          - os: linux-latest
+            target: x86_64-fortanix-unknown-sgx
+          - os: linux-latest
+            target: x86_64-unknown-fuchsia
+          - os: linux-latest
+            target: x86_64-linux-android
+          - os: linux-latest
+            target: x86_64-pc-solaris
+          - os: linux-latest
+            target: x86_64-unknown-linux-gnux32
+          - os: linux-latest
+            target: x86_64-unknown-redox
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.56.0
+          targets: ${{ matrix.target }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+      - name: Run build
+        # TODO: Temporary
+        continue-on-error: true
+        run: |
+          cross build --all-features --target=${{ matrix.target }}
+
+# TODO: Tier 3
+# - x86_64-unknown-dragonfly
+# And other targets that have `std` comnpiled
