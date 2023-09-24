@@ -65,7 +65,6 @@ jobs:
           toolchain: 1.66.0
           targets: ${{ matrix.target }}
       - uses: taiki-e/install-action@v2
-        if: matrix.cargo-binary == "cross"
         with:
           tool: cross
 
@@ -75,12 +74,12 @@ jobs:
       - name: Check with all features enabled
         run: ${{ env.CARGO_BINARY }} check --all-features --target=${{ matrix.target }}
         env:
-          CARGO_BINARY: ${{ matrix.use_cross && 'cross' || 'cargo' }}
+          CARGO_BINARY: ${{ matrix.use_cross == true && 'cross' || 'cargo' }}
 
       - name: Run tests
         run: ${{ env.CARGO_BINARY }} test --all-features --target=${{ matrix.target }}
         env:
-          CARGO_BINARY: ${{ matrix.use_cross && 'cross' || 'cargo' }}
+          CARGO_BINARY: ${{ matrix.use_cross == true && 'cross' || 'cargo' }}
 
   tier2_with_host_tools:
     # Matches Rust "Tier 2 with Host Tools" platform support
