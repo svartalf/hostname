@@ -39,14 +39,18 @@ jobs:
         include:
           - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
+            use_cross: true
           - os: ubuntu-latest
             target: i686-unknown-linux-gnu
+            use_cross: true
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
           - os: windows-latest
             target: i686-pc-windows-gnu
+            use_cross: true
           - os: windows-latest
             target: i686-pc-windows-msvc
+            use_cross: true
           - os: windows-latest
             target: x86_64-pc-windows-gnu
           - os: windows-latest
@@ -61,6 +65,7 @@ jobs:
           toolchain: 1.66.0
           targets: ${{ matrix.target }}
       - uses: taiki-e/install-action@v2
+        if: matrix.cargo-binary == "cross"
         with:
           tool: cross
 
@@ -68,10 +73,14 @@ jobs:
         run: cargo check --target=${{ matrix.target }}
 
       - name: Check with all features enabled
-        run: cross check --all-features --target=${{ matrix.target }}
+        run: ${{ env.CARGO_BINARY }} check --all-features --target=${{ matrix.target }}
+        env:
+          CARGO_BINARY: ${{ matrix.use_cross && 'cross' || 'cargo' }}
 
       - name: Run tests
-        run: cross test --all-features --target=${{ matrix.target }}
+        run: ${{ env.CARGO_BINARY }} test --all-features --target=${{ matrix.target }}
+        env:
+          CARGO_BINARY: ${{ matrix.use_cross && 'cross' || 'cargo' }}
 
   tier2_with_host_tools:
     # Matches Rust "Tier 2 with Host Tools" platform support
