@@ -60,15 +60,18 @@ jobs:
         with:
           toolchain: 1.66.0
           targets: ${{ matrix.target }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cross
 
       - name: Check without features
-        run: cargo check
+        run: cargo check --target=${{ matrix.target }}
 
       - name: Check with all features enabled
-        run: cargo check --all-features --target=${{ matrix.target }}
+        run: cross check --all-features --target=${{ matrix.target }}
 
       - name: Run tests
-        run: cargo test --all-features --target=${{ matrix.target }}
+        run: cross test --all-features --target=${{ matrix.target }}
 
   tier2_with_host_tools:
     # Matches Rust "Tier 2 with Host Tools" platform support
@@ -122,6 +125,9 @@ jobs:
         with:
           toolchain: 1.66.0
           targets: ${{ matrix.target }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cross
       - name: Run build
         # TODO: Temporary
         continue-on-error: true
