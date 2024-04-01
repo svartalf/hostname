@@ -6,12 +6,12 @@ use std::io;
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::ffi::OsStringExt;
 
-use windows::Win32::System::SystemInformation::ComputerNamePhysicalDnsHostname;
+use windows::core::PWSTR;
+use windows::Win32::System::SystemInformation::{
+    ComputerNamePhysicalDnsHostname, GetComputerNameExW,
+};
 
 pub fn get() -> io::Result<OsString> {
-    use windows::core::PWSTR;
-    use windows::Win32::System::SystemInformation::GetComputerNameExW;
-
     let mut size = 0;
     unsafe {
         // Don't care much about the result here,

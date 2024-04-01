@@ -8,14 +8,11 @@ Set and get the host name:
 ```rust,no_run
 # use std::io;
 # use std::ffi::OsStr;
-# fn try_main() -> io::Result<()> {
+# fn main() -> io::Result<()> {
 hostname::set("potato")?;
 let new_name = hostname::get()?;
 assert_eq!(new_name, OsStr::new("potato"));
 # Ok(())
-# }
-# fn main() {
-#    try_main().unwrap();
 # }
 ```
 "#
@@ -27,13 +24,10 @@ Get the host name:
 ```rust,no_run
 # use std::io;
 # use std::ffi::OsStr;
-# fn try_main() -> io::Result<()> {
+# fn main() -> io::Result<()> {
 let name = hostname::get()?;
 println!("{:?}", name);
 # Ok(())
-# }
-# fn main() {
-#    try_main().unwrap();
 # }
 ```
 "#
@@ -54,6 +48,7 @@ println!("{:?}", name);
     unused_import_braces,
     unused_results
 )]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 use cfg_if::cfg_if;
 
@@ -80,12 +75,9 @@ cfg_if! {
 ///
 /// ```rust
 /// # use std::io;
-/// # fn try_main() -> io::Result<()> {
+/// # fn main() -> io::Result<()> {
 /// let name = hostname::get()?;
 /// # Ok(())
-/// # }
-/// # fn main() {
-/// #    try_main().unwrap();
 /// # }
 /// ```
 ///
@@ -108,12 +100,9 @@ pub fn get() -> io::Result<OsString> {
 
 ```rust,no_run
 # use std::io;
-# fn try_main() -> io::Result<()> {
+# fn main() -> io::Result<()> {
 hostname::set("potato")?;
 # Ok(())
-# }
-# fn main() {
-#    try_main().unwrap();
 # }
 ```
 "#

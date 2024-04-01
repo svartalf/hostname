@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2024-04-01
+
+### Added
+
+- CI setup now covers almost all supported Tier 1 and Tier 2 platform targets
+
+### Changed
+
+- Minimum Supported Rust version set to `1.67.0`
+- Rust edition set to "2021"
+
+### Fixed
+
+- Handle edge cases for POSIX systems (#14)
+- docs.rs documentation build
+
 ## [0.3.1] - 2020-02-28
 
 ### Fixed
