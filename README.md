@@ -2,7 +2,7 @@
 
 [![Latest Version](https://img.shields.io/crates/v/hostname.svg)](https://crates.io/crates/hostname)
 [![Latest Version](https://docs.rs/hostname/badge.svg)](https://docs.rs/hostname)
-[![Build Status](https://github.com/svartalf/hostname/workflows/Continuous%20integration/badge.svg)](https://github.com/svartalf/hostname/actions)
+[![Build Status](https://github.com/svartalf/hostname/actions/workflows/ci.yml/badge.svg)](https://github.com/svartalf/hostname/actions)
 ![Minimum rustc version](https://img.shields.io/badge/rustc-1.67+-green.svg)
 ![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Crates.io](https://img.shields.io/crates/d/hostname)
