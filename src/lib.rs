@@ -61,6 +61,7 @@ cfg_if! {
         mod nix;
         use crate::nix as sys;
     } else if #[cfg(target_os = "windows")] {
+        #[allow(dead_code, nonstandard_style, non_upper_case_globals, clippy::upper_case_acronyms)]
         mod windows;
         use crate::windows as sys;
     } else {
