@@ -8,7 +8,7 @@ repository = "https://github.com/djc/hostname"
 readme = "README.md"
 license = "MIT"
 edition = "2021"
-rust-version = "1.74"
+rust-version = "1.85"
 
 [features]
 default = []
