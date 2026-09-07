@@ -1,22 +1,28 @@
 use std::fs;
 use std::process::Command;
 
-use windows_bindgen::bindgen;
+use windows_bindgen::Bindgen;
 
 #[test]
 fn gen_bindings() {
     let output = "src/windows/bindings.rs";
     let existing = fs::read_to_string(output).unwrap();
 
-    bindgen(["--no-deps", "--etc", "tests/bindings.txt"]).unwrap();
+    Bindgen::new()
+        .filter("ComputerNamePhysicalDnsHostname")
+        .filter("GetComputerNameExW")
+        .filter("SetComputerNameExW")
+        .output("src/windows/bindings.rs")
+        .flat()
+        .sys()
+        .dead_code()
+        .write();
+
     let out = Command::new("rustfmt")
         .arg("--edition=2021")
         .arg(output)
         .output()
         .unwrap();
-
-    dbg!(String::from_utf8(out.stdout).unwrap());
-    dbg!(String::from_utf8(out.stderr).unwrap());
     assert!(out.status.success());
 
     // Check the output is the same as before.
